@@ -24,7 +24,7 @@ for (const folder of commandFolders) {
 }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken('MTI4Mjc3NjU3NTc5NTkyNTAyMg.GRjzcX.lUg4bTkEJaLU7xDeXW_IjahRyFkkoevogfR0Oo');
+const rest = new REST().setToken(process.env.TOKEN);
 
 // and deploy your commands!
 (async () => {
