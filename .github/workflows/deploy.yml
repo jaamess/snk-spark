@@ -1,0 +1,40 @@
+name: Deploy to Ubuntu VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    - name: Check for package.json changes
+      id: check
+      run: |
+        git diff --name-only HEAD^ HEAD | grep 'package.json' && echo "::set-output name=changed::true" || echo "::set-output name=changed::false"
+    
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /root/bot
+          git pull
+          if [ "${{ steps.check.outputs.changed }}" = "true" ]; then
+            echo "package.json changed, running npm i"
+            npm i
+          fi
+          echo "Starting slash commands update."
+          node deploy.js
+          echo "Summoning pm2..."
+          pm2 restart index.js
+          echo "Finished starting application index.js"
