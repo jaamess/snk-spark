@@ -1,56 +1,16 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const fetch = require('node-fetch');
-
-const SPREADSHEET_ID = '1rPiG51FxpQmJ3lpLuoSwLt3NRKLOwYL4F2xU-R9dF_Y';
-const API_KEY = process.env.GOOGLE_API;
-const roleMapping = {
-    BLAZE: '1267847683675000883',
-    FLAME: '1267847632995221569',
-    SPARK: '1267847593833140386',
-};
-
-async function getSheetTabs() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title&key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data.sheets.map(sheet => sheet.properties.title);
-}
-
-async function getUserDataFromTab(tabName) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${tabName}!B:C?key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data.values;
-}
+const winners = require('../../winners');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('spark')
-        .setDescription('Assign roles to the current winners of the sparks program.')
-        .addStringOption(option =>
-            option.setName('tab')
-                .setDescription('Select the Google Sheets tab to retrieve user data')
-                .setAutocomplete(true)
-                .setRequired(true)
-        ),
-    async autocomplete(interaction) {
-        const tabs = await getSheetTabs();
-
-        const focusedValue = interaction.options.getFocused();
-        const filtered = tabs.filter(tab => tab.toLowerCase().startsWith(focusedValue.toLowerCase()));
-
-        await interaction.respond(
-            filtered.map(tab => ({ name: tab, value: tab }))
-        );
-    },
+        .setDescription('Assign roles to the current winners of the sparks program.'),
     async execute(interaction) {
-        const selectedTab = interaction.options.getString('tab');
-        const data = await getUserDataFromTab(selectedTab);
-
+        const roleFirst10 = '1267847683675000883';
+        const roleNext15 = '1267847632995221569';
+        const roleRemaining = '1267847593833140386';
+        const totalUsers = winners.length;
         const guild = interaction.guild;
-        await interaction.guild.members.fetch();
 
         let progress = 0;
         let progressBar = '▓'.repeat(0) + '░'.repeat(10);
@@ -58,15 +18,21 @@ module.exports = {
 
         const message = await interaction.reply({ content: `Progress: [${progressBar}] 0%`, fetchReply: true });
 
-        for (let i = 0; i < data.length; i++) {
-            const [roleName, userId] = data[i];
-            const roleId = roleMapping[roleName.toUpperCase()];
-            const member = guild.members.cache.get(userId);
+        await interaction.guild.members.fetch();
+
+        for (let i = 0; i < totalUsers; i++) {
+            const member = guild.members.cache.get(winners[i]);
             let assigned = false;
 
-            if (member && roleId) {
+            if (member) {
                 try {
-                    await member.roles.add(roleId);
+                    if (i < 10) {
+                        await member.roles.add(roleFirst10);
+                    } else if (i < 25) {
+                        await member.roles.add(roleNext15);
+                    } else {
+                        await member.roles.add(roleRemaining);
+                    }
                     assigned = true;
                 } catch (error) {
                     failedAssignments.push({
@@ -77,13 +43,13 @@ module.exports = {
                 }
             } else {
                 failedAssignments.push({
-                    id: userId,
-                    username: 'Unknown (User not found or invalid role)',
-                    reason: member ? 'Invalid role mapping' : 'User not found in guild',
+                    id: winners[i],
+                    username: 'Unknown (User not found)',
+                    reason: 'User not found in guild',
                 });
             }
 
-            if ((i + 1) % Math.ceil(data.length / 10) === 0) {
+            if ((i + 1) % Math.ceil(totalUsers / 10) === 0) {
                 progress += 1;
                 progressBar = '▓'.repeat(progress) + '░'.repeat(10 - progress);
                 await message.edit(`Progress: [${progressBar}] ${progress * 10}%`);
