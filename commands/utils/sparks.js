@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
 
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
+const SPREADSHEET_ID = '1rPiG51FxpQmJ3lpLuoSwLt3NRKLOwYL4F2xU-R9dF_Y';
 const API_KEY = process.env.GOOGLE_API;
 const roleMapping = {
     BLAZE: '1267847683675000883',
