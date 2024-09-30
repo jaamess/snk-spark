@@ -13,5 +13,10 @@ module.exports = {
 		await guild.members.fetch();
 
 		console.log(`Fetched ${guild.members.cache.size} members from ${guild.name}`);
-	},
+
+		// Add the emoji 1287552503608770600 to the message ID 1290281677674774540 in the channel ID 1285236236071731270
+		const channel = guild.channels.cache.get('1285236236071731270');
+		const message = await channel.messages.fetch('1290281677674774540');
+		await message.react('1287552503608770600');
+	}
 };
