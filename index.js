@@ -3,7 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
+const client = new Client({ intents: [
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMembers,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.GuildMessageReactions
+] });
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -36,5 +41,4 @@ for (const file of eventFiles) {
 	}
 }
 
-console.log(process.env.SNK_TOKEN);
 client.login(process.env.SNK_TOKEN);
