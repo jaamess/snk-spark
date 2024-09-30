@@ -3,9 +3,9 @@ const { Events } = require('discord.js');
 module.exports = {
 	name: Events.MessageReactionAdd,
 	async execute(reaction, user) {
-		const targetChannelId = 'SPECIFIC_CHANNEL_ID';
+		const targetChannelId = '1285236236071731270';
 		const targetMessageId = 'SPECIFIC_MESSAGE_ID';
-		const roleId = 'SPECIFIC_ROLE_ID';
+		const roleId = '1286327443430445123';
 
 		if (reaction.message.id !== targetMessageId || reaction.message.channel.id !== targetChannelId) return;
 
