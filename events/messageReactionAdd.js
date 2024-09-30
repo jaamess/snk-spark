@@ -4,7 +4,7 @@ module.exports = {
     name: Events.MessageReactionAdd,
     async execute(reaction, user) {
         const targetChannelId = '1285236236071731270';
-        const targetMessageId = 'SPECIFIC_MESSAGE_ID';
+        const targetMessageId = '1290281677674774540';
         const roleId = '1286327443430445123';
         const targetEmoji = '1287552503608770600';
 
